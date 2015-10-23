@@ -1,0 +1,15 @@
+*~
+*.dia
+*.docx
+*.jpeg
+*.png
+*.tex
+*.sty
+*.iml
+*.zip
+.idea/
+out/
+META-INF/
+/bin/
+.project
+.classpath

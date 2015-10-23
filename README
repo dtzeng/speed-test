@@ -1,0 +1,41 @@
+Speed Test Server & Client
+
+Implements a simple version of speed-test utility. The server can take in a 
+port to listen to client requests on, and the client can specify a 
+host:port pair for speed-testing.
+
+Following are the main design decisions of the utility:
+- In order to saturate download/upload speed, I use ten worker threads to 
+  download / upload data at the same time, while the master thread 
+  periodically checks on the status of the workers.
+- To provide the speed data with better time-granularity, the worker 
+  threads upload / download data at 100KB-chunk, so the speed data can update
+  in real-time as speed-testing continues (like in speedtest.net).
+
+More technical details:
+- The code uses Java socket library exclusively;
+- Each run of speed-testing consists of the following stages:
+    * Client spawns ten worker threads;
+    * Each client worker starts a connection to server and upload 100KB data
+      for ten times. It also accumulate a counter to report progress to master;
+    * Each client worker downloads 50KB data that the server generates, and
+      a counter is also used;
+    * Throughout the process, master thread periodically looks at the counters
+      and update the real-time speed to the user;
+    * After worker threads finish tramsmitting data, master thread calculates
+      the statistics.
+
+Potential issues:
+- In very fast network environments, the time used to upload / download the
+  data can be very short, so network latency might affect the calculated
+  bandwidth significantly;
+- If the server/client pair is to be productionized, the server might be over-
+  loaded by concurrent connections.
+
+
+Running the client:
+java -jar bin/speedtest-client.jar \
+--server-port <server port> --server-ip <server ip address>
+
+Running the server:
+java -jar bin/speedtest-server.jar <port>
